@@ -294,6 +294,38 @@ cdef class PlaneStressConstitutive(Constitutive):
             self.ptr = NULL
             self.cptr = NULL
 
+cdef class SimpPSConstitutive(PlaneStressConstitutive):
+    def __cinit__(self, *args, **kwargs):
+        self.cptr = NULL
+        cdef TACSMaterialProperties *props = NULL
+        cdef TacsScalar t = 1.0
+        cdef int tNum = -1
+        cdef TacsScalar q = 3.0
+        cdef TacsScalar tlb = 0.0
+        cdef TacsScalar tub = 1.0
+
+        if len(args) >= 1:
+            props = (<MaterialProperties>args[0]).ptr
+        if 't' in kwargs:
+            t = kwargs['t']
+        if 'tNum' in kwargs:
+            tNum = kwargs['tNum']
+        if 'tlb' in kwargs:
+            tlb = kwargs['tlb']
+        if 'tub' in kwargs:
+            tub = kwargs['tub']
+        if 'q' in kwargs:
+            q = kwargs['q']
+
+        if props is not NULL:
+            self.cptr = new TACSSimpPlaneStressConstitutive(props, t, tNum, q,
+                                                        tlb, tub)
+            self.ptr = self.cptr
+            self.ptr.incref()
+        else:
+            self.ptr = NULL
+            self.cptr = NULL
+
 cdef class SolidConstitutive(Constitutive):
     def __cinit__(self, *args, **kwargs):
         cdef TACSMaterialProperties *props = NULL
